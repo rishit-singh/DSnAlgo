@@ -1,7 +1,6 @@
 #pragma once
 
 #define DS_H
-#define DS_H
 
 #include <stdio.h>
 #include <iostream>
@@ -9,8 +8,11 @@
 #include <string.h>
 #include "algorithms.h"
 #include "../cartesian.h"
+#include "../moduledata.h"
+
 using namespace std;
 using namespace Algorithms;
+using namespace CartesianObjects;
 
 namespace DataStructures
 {
@@ -28,19 +30,24 @@ namespace DataStructures
             Stack::array = (int*) malloc(sizeof(int) * MAX);    
             Stack::count = 0;   
         }
+       
         Stack(int size)
         {
             DataStructures::Stack::array = (int*) malloc(sizeof(int) * size);
             DataStructures::Stack::count = 0;       
         }
+       
         static int* array;
         int top = -1; 
         static int count;
+
         static void Push(int val)
         {
             *(DataStructures::Stack::array + DataStructures::Stack::count) = val;
         }
+        
         static exception* e;
+        
         static void Pop()
         {
             *(DataStructures::Stack::array + DataStructures::Stack::count) = NULL;
@@ -62,17 +69,17 @@ namespace DataStructures
             return array;
         }
 
-        static Point* ToArray(stack<> s)
+        static struct CartesianObjects::Point* ToArray(stack<struct CartesianObjects::Point>* s)
         {
-            int* array = (int*) malloc(sizeof(int) * s.size());
-            for (int x = 0; !(s.empty()); x++)
+            struct CartesisanObjects::Point* array = (CartesianObjects::Point*) malloc(sizeof(CartesianObjects::Point) * s->size());
+            
+            for (int x = 0; !(s->empty()); x++)
             {    
-                *(array + x) = s.top();
-                s.pop();
+                *(array + x) = s->top();
+                s->pop();
             }
+
             return array;
         }
     };
 };
-
-

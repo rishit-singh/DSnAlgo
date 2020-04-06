@@ -26,9 +26,9 @@ public:
 
         for (int x = 0; x < strlen(data); x++)
         {
-            struct charRecursion chr;
+            struct charRecursion chiTemp;
             
-            if (c = *(data + x) == *(data + (x + 1))
+            if ((c = *(data + x)) == *(data + (x + 1))
             {
                 chr.chr = c;
                 count++;
