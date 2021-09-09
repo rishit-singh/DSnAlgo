@@ -53,7 +53,7 @@ private:
 			next = current->Next;
 
 			delete current;
-
+			
 			current = next;
 		}	
 	}
@@ -83,7 +83,7 @@ private:
 	Node<T>* Traverse(Node<T>* node, int start, int end)
 	{
 		if (start < end)
-			return this->Traverse(node->Next, start++, end);
+			return this->Traverse(node->Next, ++start, end);
 		
 		return node;
 	}
@@ -117,10 +117,10 @@ public:
 
 		Node<T>* node = this->Head;
 
-		for (int x = 0; x < index; x++)
-			node = node->Next;
+		//for (int x = 0; x < index; x++)
+		//	node = node->Next;
 
-		//node = this->Traverse(node, 0, index);
+		node = this->Traverse(node, 0, index);
 
 		return node;
 	}
