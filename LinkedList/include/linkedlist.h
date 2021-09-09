@@ -29,13 +29,13 @@ struct Node
 	{
 	}
 
-	~Node()
+	void operator =(T data)
 	{
-		if (this->Previous != nullptr && this->Next != nullptr)
-		{	
-			this->Previous->Next = this->Next; 
-			this->Next->Previous = this->Previous;
-		}
+		this->Data = data;
+	}
+
+	~Node()
+	{		
 	}	
 };
 
@@ -43,24 +43,57 @@ template<typename T>
 class LinkedList
 {
 private:
-	void Delete()	//	deletes the current linked list instance recursively
+	void Delete()	//	deletes the current linked list instance
 	{
-				
+		Node<T>* current = this->Head
+				,*next;
+
+		while (current != nullptr)
+		{
+			next = current->Next;
+
+			delete current;
+
+			current = next;
+		}	
+	}
+
+	void Delete(Node<T>* node)
+	{
+		if (node)
+		{
+			this->Delete(node->Next);
+			delete node;
+		}
 	}
 
 	Node<T>* Traverse()
 	{	
-		Node<T>* node;
+		return this->Traverse(this->Head);
+	}
 
-		for (node = this->Head; node->Next != nullptr; node = node->Next);
+	Node<T>* Traverse(Node<T>* node)
+	{
+		if (node->Next == nullptr)
+			return node;
+		
+		return this->Traverse(node->Next);	
+	}
+
+	Node<T>* Traverse(Node<T>* node, int start, int end)
+	{
+		if (start < end)
+			return this->Traverse(node->Next, start++, end);
 		
 		return node;
 	}
-
+	
 public:
 	Node<T>* Head,	//	Head node.	
 			*Tail;	//	Tail node.
 
+	unsigned int Size { 0 };
+	
 	Node<T>* GetFrontNode()	//	Returns the first/head node of the list.
 	{
 		return this->Head;
@@ -81,10 +114,13 @@ public:
 		if (index > (this->Size - 1) || index <  0)	//	Range check. 
 			return nullptr;
 		
+
 		Node<T>* node = this->Head;
 
 		for (int x = 0; x < index; x++)
 			node = node->Next;
+
+		//node = this->Traverse(node, 0, index);
 
 		return node;
 	}
@@ -117,12 +153,39 @@ public:
 		
 		return node;		
 	}
-	
-	void SetNodeData(T, int);	//	Sets the data to the node at provided index
-		
-	unsigned int Size;
 
-	LinkedList() : Head(nullptr), Tail(nullptr), Size(0)
+	void DeleteNode(unsigned int index)
+	{
+		Node<T>* node;
+
+		if ((node = this->GetNode(index)) == nullptr)
+			return;
+
+		if (node->Previous != nullptr && node->Next != nullptr)
+		{	
+			node->Previous->Next = node->Next; 
+			node->Next->Previous = node->Previous;
+		}
+
+		delete node;
+	}
+
+	void SetNodeData(T data, int index)	//	Sets the data to the node at provided index
+	{
+		Node<T>* node;
+
+		if ((node = this->GetNode(index)) == nullptr)	
+			return;
+
+		node->Data = data;
+	}
+		
+	Node<T>* operator [](unsigned int index)
+	{
+		return this->GetNode(index);
+	}
+	
+	LinkedList() : Head(nullptr), Tail(nullptr)
 	{
 	}
 	
@@ -131,7 +194,7 @@ public:
 		this->Size++; 
 	}
 	
-	LinkedList(const LinkedList& linkedList) : Head(linkedList.Head), Size(0)
+	LinkedList(const LinkedList& linkedList) : Head(linkedList.Head)
 	{
 		for (Node<T>* node = linkedList.Head; node->Next != nullptr; node = node->Next)
 		{
@@ -143,11 +206,7 @@ public:
 
 	~LinkedList()
 	{
-
-		for (Node<T>* node = this->Head->Next; node->Next != nullptr; node = node->Next)
-			delete node;
-
-		delete this->Head;
+		this->Delete(this->Head);
 	}
 };
 

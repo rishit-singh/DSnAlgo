@@ -6,8 +6,8 @@ static void PrintList(LinkedList<T>& linkedList)
 {
 	Node<T>* node;
 	
-	for (int x = 0; x < (linkedList.Size - 1); x++)
-		std::cout << x << ": " << (node = linkedList.GetNode(x))->Data << ";\n";
+	for (int x = 0; x < linkedList.Size; x++)
+		std::cout << x << ": " << (node = linkedList[x])->Data << ";\n";
 }
 
 int main()
@@ -17,9 +17,10 @@ int main()
 	for (int x = 20; x <= 100; x += 10)	
 		linkedList.AddNode(new Node<int>(x));
 
-	//linkedList1 = LinkedList<int>(linkedList);
-
-	//	PrintList(linkedList);
+	*linkedList[1] = 10;
+	
+	PrintList(linkedList);
 
 	return 0;
 }
+
