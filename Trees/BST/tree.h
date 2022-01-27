@@ -164,7 +164,7 @@ public:
 
         std::pair<std::pair<Node<T>*, Node<T>*>, uint8_t> GetNode(T value)
         {
-            if (!this->Root)
+            if (!this->Root) // Null check
                 return std::pair(std::pair(nullptr, nullptr), 0);
 
             std::pair<std::pair<Node<T>*, Node<T>*>, uint8_t> node = std::pair(std::pair(nullptr, this->Root), 0);
@@ -172,27 +172,29 @@ public:
             if (value == this->Root->Data)
                 return node;
 
-            while (node.first.second)
-            {
-                if (value < node.first.second->Data)
-                {
-                    node.first.first = node.first.second;
+            Node<T>* prev = node.first.first, *next = node.first.second; // Previous node, with root
 
-                    node.first.second = node.first.second->Left;
+            while (next) // Runs until next node isnt null.
+            {
+                if (value < next->Data)
+                {
+                    prev = next;
+
+                    next = next->Left;
 
                     node.second = 0;
                 }
 
                 if (value > node.first.second->Data)
                 {
-                    node.first.first = node.first.second;
+                    prev = next;
 
-                    node.first.second = node.first.second->Right;
+                    next = next->Right;
 
                     node.second = 1;
                 }
 
-                if (value == node.first.second->Data)
+                if (value == next->Data)
                     break;
             }
 
