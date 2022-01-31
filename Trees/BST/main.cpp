@@ -16,18 +16,18 @@ int main(int argc, char **argv)
 
     // std::cout << "\nExists: " << binarySearchTree.Search(num) << '\n';
 
-    std::pair<std::pair<Node<int>*, Node<int>*>, uint8_t> node = binarySearchTree.GetNode(num);
+    BinarySearchTree<int>::NodePairInfo node = binarySearchTree.GetNode(num);
 
-    std::cout << "\nFound node: " << node.first.second->Data
-        << "\nPrevious: " <<  node.first.first->Data << '\n';
+    std::cout << "\nFound node: " << node.Previous->Data
+        << "\nPrevious: " <<  node.Next->Data << '\n';
 
-    binarySearchTree.Delete(num);
+    //binarySearchTree.Delete(num);
 
     std::cout << '\n';
 
     binarySearchTree.Traverse();
     // binarySearchTree.num);
-
     // binarySearchTree.Traverse();
+
     return 0;
 }

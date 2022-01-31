@@ -23,4 +23,5 @@ struct Node
     }
 };
 
+
 #endif // NODE_H

@@ -8,13 +8,6 @@
 #include <iostream>
 #include <utility>
 
-enum class TraversalType
-{
-    PreOrder,
-    PostOrder,
-    InOrder
-};
-
 
 // Stores the binary tree nodes and related functions.
 template<typename T>
@@ -77,10 +70,35 @@ private:
         }
 
 public:
+		enum class TraversalType
+		{
+			PreOrder,
+			PostOrder,
+			InOrder
+		};
+       
+		enum class NodeDirection
+		{
+			Left,
+			Right
+		};
+
+        struct NodePairInfo
+        {
+            Node<T>* Previous,
+                    *Next;
+
+            BinarySearchTree::NodeDirection Direction;
+
+            NodePairInfo(Node<T>* prev, Node<T>* next, BinarySearchTree::NodeDirection nodeDirection) : Previous(prev), Next(next)
+            {
+            }
+        };
+
         std::pair<Node<T>*, Node<T>*> GetSmallest(Node<T>* node)
         {
             if (!node)
-                return std::pair(nullptr, nullptr);
+                return std::pair<Node<T>*, Node<T>*>(nullptr, nullptr);
 
             Node<T>* parent = node;
 
@@ -91,7 +109,7 @@ public:
                 node = node->Left;
             }
 
-            std::pair(parent, node);
+            std::make_pair(parent, node);
         }
 
 public:
@@ -108,10 +126,8 @@ public:
             if (this->Root == nullptr)
                 this->Root = node;
 
-            while (temp)
+            while (finalNode = temp)
             {
-                finalNode = temp;
-
                 if (value < temp->Data)
                 {
                     temp = temp->Left;
@@ -162,40 +178,34 @@ public:
             return false;
         }
 
-        std::pair<std::pair<Node<T>*, Node<T>*>, uint8_t> GetNode(T value)
+        NodePairInfo GetNode(T value)
         {
             if (!this->Root) // Null check
-                return std::pair(std::pair(nullptr, nullptr), 0);
+                return NodePairInfo(nullptr, nullptr, NodeDirection::Left);
 
-            std::pair<std::pair<Node<T>*, Node<T>*>, uint8_t> node = std::pair(std::pair(nullptr, this->Root), 0);
+            NodePairInfo node = NodePairInfo(nullptr, this->Root, NodeDirection::Left);
 
             if (value == this->Root->Data)
                 return node;
 
-            Node<T>* prev = node.first.first, *next = node.first.second; // Previous node, with root
-
-            while (next) // Runs until next node isnt null.
+            while (node.Next) // Runs until next node isnt null.
             {
-                if (value < next->Data)
+                if (value < node.Next->Data)
                 {
-                    prev = next;
+                    node.Next = node.Next->Left;
 
-                    next = next->Left;
-
-                    node.second = 0;
+                    node.Direction = NodeDirection::Left;
                 }
 
-                if (value > node.first.second->Data)
+                else if (value > node.Next->Data)
                 {
-                    prev = next;
+                    node.Next = node.Next->Right;
 
-                    next = next->Right;
-
-                    node.second = 1;
+                    node.Direction = NodeDirection::Right;
                 }
 
-                if (value == next->Data)
-                    break;
+               else
+                   break;
             }
 
             return node;
@@ -211,11 +221,11 @@ public:
 
             uint8_t childDirection = 0;
 
-            std::pair<std::pair<Node<T>*, Node<T>*>, uint8_t> nodePair = this->GetNode(value);
+            NodePairInfo nodePair = this->GetNode(value);
 
             std::pair<Node<T>*, Node<T>*> smallestNode;
 
-            if (!nodePair.second)
+            if (!nodePair.Previous)
                 return;
 
             // while (nodePair.second)
@@ -246,42 +256,42 @@ public:
             //         this->Root = nullptr;
 
             //         return;
-            //     }
-
+            
+			//     }
             // }
 
-            if ((smallestNode = this->GetSmallest(nodePair.first.second->Right)).second == nullptr)
+            if ((smallestNode = this->GetSmallest(nodePair.Next->Right)).second == nullptr)
             {
                 smallestNode.first->Right = nullptr;
 
-                smallestNode.second->Left = nodePair.first.second->Left;
-                smallestNode.second->Right = nodePair.first.second->Right;
+                smallestNode.second->Left = nodePair.Next->Left;
+                smallestNode.second->Right = nodePair.Next->Right;
 
-                nodePair.first.first->Right = smallestNode.second;
+                nodePair.Previous->Right = smallestNode.second;
 
-                delete nodePair.first.second;
+                delete nodePair.Next;
             }
 
             else
                 switch (childDirection)
                 {
                     case 0:
-                        smallestNode.second->Left = nodePair.first.second->Left;
-                        smallestNode.second->Right = nodePair.first.second->Right;
+                        smallestNode.second->Left = nodePair.Next->Left;
+                        smallestNode.second->Right = nodePair.Next->Right;
 
-                        delete nodePair.first.first->Left;
+                        delete nodePair.Previous->Left;
 
-                        nodePair.first.first->Left = smallestNode.second;
+                        nodePair.Previous->Left = smallestNode.second;
 
                         break;
 
                    case 1:
-                        smallestNode.second->Left = nodePair.first.first->Right->Left;
-                        smallestNode.second->Right = nodePair.first.first->Right->Right;
+                        smallestNode.second->Left = nodePair.Previous->Right->Left;
+                        smallestNode.second->Right = nodePair.Previous->Right->Right;
 
-                        delete nodePair.first.first->Right;
+                        delete nodePair.Previous->Right;
 
-                        nodePair.first.first->Right = smallestNode.second;
+                        nodePair.Previous->Right = smallestNode.second;
 
                         break;
                 }
