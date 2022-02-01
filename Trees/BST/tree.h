@@ -70,18 +70,18 @@ private:
         }
 
 public:
-		enum class TraversalType
-		{
-			PreOrder,
-			PostOrder,
-			InOrder
-		};
+        enum class TraversalType
+        {
+            PreOrder,
+            PostOrder,
+            InOrder
+        };
        
-		enum class NodeDirection
-		{
-			Left,
-			Right
-		};
+        enum class NodeDirection
+        {
+            Left,
+            Right
+        };
 
         struct NodePairInfo
         {
@@ -90,7 +90,7 @@ public:
 
             BinarySearchTree::NodeDirection Direction;
 
-            NodePairInfo(Node<T>* prev, Node<T>* next, BinarySearchTree::NodeDirection nodeDirection) : Previous(prev), Next(next)
+            NodePairInfo(Node<T>* prev, Node<T>* next, BinarySearchTree::NodeDirection nodeDirection) : Previous(prev), Next(next), Direction(nodeDirection)
             {
             }
         };
@@ -126,8 +126,10 @@ public:
             if (this->Root == nullptr)
                 this->Root = node;
 
-            while (finalNode = temp)
+            while (temp)
             {
+                finalNode = temp;
+
                 if (value < temp->Data)
                 {
                     temp = temp->Left;
@@ -192,6 +194,7 @@ public:
             {
                 if (value < node.Next->Data)
                 {
+                    node.Previous = node.Next;
                     node.Next = node.Next->Left;
 
                     node.Direction = NodeDirection::Left;
@@ -199,6 +202,7 @@ public:
 
                 else if (value > node.Next->Data)
                 {
+                    node.Previous = node.Next;
                     node.Next = node.Next->Right;
 
                     node.Direction = NodeDirection::Right;
@@ -227,38 +231,6 @@ public:
 
             if (!nodePair.Previous)
                 return;
-
-            // while (nodePair.second)
-            // {
-            //     if (value == nodePair.second->Data)// node found
-            //         break;
-
-            //     if (value < nodePair.second->Data)
-            //     {
-            //         nodePair.second = nodePair.second->Left;
-
-            //         childDirection = 0;
-            //     }
-
-            //     if (value > nodePair.second->Data)
-            //     {
-            //         nodePair.second = nodePair.second->Right;
-
-            //         childDirection = 1;
-            //     }
-
-            //     if (nodePair.second == this->Root)
-            //     {
-            //         delete nodePair.second;
-
-            //         nodePair.second = nullptr;
-
-            //         this->Root = nullptr;
-
-            //         return;
-            
-			//     }
-            // }
 
             if ((smallestNode = this->GetSmallest(nodePair.Next->Right)).second == nullptr)
             {

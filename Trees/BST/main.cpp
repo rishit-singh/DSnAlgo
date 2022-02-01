@@ -14,12 +14,9 @@ int main(int argc, char **argv)
 
     binarySearchTree.Traverse();
 
-    // std::cout << "\nExists: " << binarySearchTree.Search(num) << '\n';
+    std::cout << "\nExists: " << binarySearchTree.Search(num) << '\n';
 
     BinarySearchTree<int>::NodePairInfo node = binarySearchTree.GetNode(num);
-
-    std::cout << "\nFound node: " << node.Previous->Data
-        << "\nPrevious: " <<  node.Next->Data << '\n';
 
     //binarySearchTree.Delete(num);
 
