@@ -90,15 +90,19 @@ public:
 
             BinarySearchTree::NodeDirection Direction;
 
+            NodePairInfo() : Previous(nullptr), Next(nullptr), Direction(NodeDirection::Left)
+            {
+            }
+
             NodePairInfo(Node<T>* prev, Node<T>* next, BinarySearchTree::NodeDirection nodeDirection) : Previous(prev), Next(next), Direction(nodeDirection)
             {
             }
         };
 
-        std::pair<Node<T>*, Node<T>*> GetSmallest(Node<T>* node)
+        NodePairInfo GetSmallest(Node<T>* node)
         {
             if (!node)
-                return std::pair<Node<T>*, Node<T>*>(nullptr, nullptr);
+                return NodePairInfo(nullptr, nullptr, NodeDirection::Left);
 
             Node<T>* parent = node;
 
@@ -109,7 +113,7 @@ public:
                 node = node->Left;
             }
 
-            std::make_pair(parent, node);
+            return NodePairInfo(parent, node, NodeDirection::Left);
         }
 
         // Replaces the Next node of the provided NodePairInfo with the substituteNode
@@ -246,12 +250,10 @@ public:
             if (value == this->Root->Data)
                 delete this->Root;
 
-            NodePairInfo nodePair = this->GetNode(value);
+            NodePairInfo nodePair = this->GetNode(value),
+                smallestNode;
 
             Node<T>* delNode; // temp pointer to the node that has to be deleted
-
-            std::pair<Node<T>*, Node<T>*> smallestNode;
-
 
             if (!nodePair.Next)
                 return;
@@ -273,6 +275,7 @@ public:
 
                 delNode = nullptr;
             }
+
             else if (nodePair.Next->Left && !nodePair.Next->Right) // Right child is null
             {
                 delNode = nodePair.Next;
@@ -284,14 +287,14 @@ public:
                 delNode = nullptr;
             }
 
-            else if ((smallestNode = this->GetSmallest(nodePair.Next->Right)).second == nullptr)
+            else if ((smallestNode = this->GetSmallest(nodePair.Next->Right)).Next == nullptr)
             {
-                smallestNode.first->Right = nullptr;
+                smallestNode.Previous->Right = nullptr;
 
-                smallestNode.second->Left = nodePair.Next->Left;
-                smallestNode.second->Right = nodePair.Next->Right;
+                smallestNode.Next->Left = nodePair.Next->Left;
+                smallestNode.Next->Right = nodePair.Next->Right;
 
-                nodePair.Previous->Right = smallestNode.second;
+                nodePair.Previous->Right = smallestNode.Next;
 
                 delete nodePair.Next;
             }
@@ -300,22 +303,22 @@ public:
                 switch (nodePair.Direction)
                 {
                     case NodeDirection::Left:
-                        smallestNode.second->Left = nodePair.Next->Left;
-                        smallestNode.second->Right = nodePair.Next->Right;
+                        smallestNode.Next->Left = nodePair.Next->Left;
+                        smallestNode.Next->Right = nodePair.Next->Right;
 
                         delete nodePair.Previous->Left;
 
-                        nodePair.Previous->Left = smallestNode.second;
+                        nodePair.Previous->Left = smallestNode.Next;
 
                         break;
 
                    case NodeDirection::Right:
-                        smallestNode.second->Left = nodePair.Previous->Right->Left;
-                        smallestNode.second->Right = nodePair.Previous->Right->Right;
+                        smallestNode.Next->Left = nodePair.Previous->Right->Left;
+                        smallestNode.Next->Right = nodePair.Previous->Right->Right;
 
                         delete nodePair.Previous->Right;
 
-                        nodePair.Previous->Right = smallestNode.second;
+                        nodePair.Previous->Right = smallestNode.Next;
 
                         break;
                 }
