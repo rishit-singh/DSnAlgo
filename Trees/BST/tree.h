@@ -112,6 +112,29 @@ public:
             std::make_pair(parent, node);
         }
 
+        // Replaces the Next node of the provided NodePairInfo with the substituteNode
+        void Transplant(NodePairInfo& nodePair, Node<T>* substituteNode)
+        {
+            switch (nodePair.Direction)
+            {
+                case NodeDirection::Left:
+                    substituteNode->Left = nodePair.Next->Left;
+                    substituteNode->Right = nodePair.Next->Right;
+
+                    nodePair.Previous->Left = substituteNode;
+
+                    break;
+
+                case NodeDirection::Right:
+                    substituteNode->Left = nodePair.Next->Left;
+                    substituteNode->Right = nodePair.Next->Right;
+
+                    nodePair.Previous->Right = substituteNode;
+
+                    break;
+            }
+        }
+
 public:
         Node<T>* Root; // Root node.
 
@@ -223,16 +246,45 @@ public:
             if (value == this->Root->Data)
                 delete this->Root;
 
-            uint8_t childDirection = 0;
-
             NodePairInfo nodePair = this->GetNode(value);
+
+            Node<T>* delNode; // temp pointer to the node that has to be deleted
 
             std::pair<Node<T>*, Node<T>*> smallestNode;
 
-            if (!nodePair.Previous)
+
+            if (!nodePair.Next)
                 return;
 
-            if ((smallestNode = this->GetSmallest(nodePair.Next->Right)).second == nullptr)
+            if (!nodePair.Next->Left && !nodePair.Next->Right) // If both children are null.
+            {
+                delete nodePair.Next;
+
+                nodePair.Next = nullptr;
+            }
+
+            else if (!nodePair.Next->Left && nodePair.Next->Right) // Left child is null
+            {
+                delNode = nodePair.Next;
+
+                this->Transplant(nodePair, nodePair.Next->Right);
+
+                delete delNode;
+
+                delNode = nullptr;
+            }
+            else if (nodePair.Next->Left && !nodePair.Next->Right) // Right child is null
+            {
+                delNode = nodePair.Next;
+
+                this->Transplant(nodePair, nodePair.Next->Left);
+
+                delete delNode;
+
+                delNode = nullptr;
+            }
+
+            else if ((smallestNode = this->GetSmallest(nodePair.Next->Right)).second == nullptr)
             {
                 smallestNode.first->Right = nullptr;
 
@@ -245,9 +297,9 @@ public:
             }
 
             else
-                switch (childDirection)
+                switch (nodePair.Direction)
                 {
-                    case 0:
+                    case NodeDirection::Left:
                         smallestNode.second->Left = nodePair.Next->Left;
                         smallestNode.second->Right = nodePair.Next->Right;
 
@@ -257,7 +309,7 @@ public:
 
                         break;
 
-                   case 1:
+                   case NodeDirection::Right:
                         smallestNode.second->Left = nodePair.Previous->Right->Left;
                         smallestNode.second->Right = nodePair.Previous->Right->Right;
 

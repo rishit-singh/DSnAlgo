@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
     BinarySearchTree<int>::NodePairInfo node = binarySearchTree.GetNode(num);
 
-    //binarySearchTree.Delete(num);
+    binarySearchTree.Delete(num);
 
     std::cout << '\n';
 
