@@ -217,7 +217,7 @@ public:
             if (value == this->Root->Data)
                 return node;
 
-            while (node.Next) // Runs until next node isnt null.
+            while (node.Next) // Runs until next node is null.
             {
                 if (value < node.Next->Data)
                 {
