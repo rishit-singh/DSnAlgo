@@ -28,8 +28,8 @@ private:
             std::cout << " " << node->Data << " ";
 
             TraverseInOrder(node->Right);
-
             return node;
+
         }
 
         // void TraversePostOrder(T* array, size_t size)
@@ -289,7 +289,7 @@ public:
 
             else if ((smallestNode = this->GetSmallest(nodePair.Next->Right)).Next == nullptr)
             {
-                smallestNode.Previous->Right = nullptr;
+                smallestNode.Previous->Left = nullptr;
 
                 smallestNode.Next->Left = nodePair.Next->Left;
                 smallestNode.Next->Right = nodePair.Next->Right;
@@ -300,11 +300,13 @@ public:
             }
 
             else
+            {
+                smallestNode.Next->Left = nodePair.Next->Left;
+                smallestNode.Next->Right = nodePair.Next->Right;
+
                 switch (nodePair.Direction)
                 {
                     case NodeDirection::Left:
-                        smallestNode.Next->Left = nodePair.Next->Left;
-                        smallestNode.Next->Right = nodePair.Next->Right;
 
                         delete nodePair.Previous->Left;
 
@@ -313,8 +315,6 @@ public:
                         break;
 
                    case NodeDirection::Right:
-                        smallestNode.Next->Left = nodePair.Previous->Right->Left;
-                        smallestNode.Next->Right = nodePair.Previous->Right->Right;
 
                         delete nodePair.Previous->Right;
 
@@ -322,6 +322,7 @@ public:
 
                         break;
                 }
+            }
         }
 
         void Traverse()
