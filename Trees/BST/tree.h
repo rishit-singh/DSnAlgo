@@ -7,11 +7,14 @@
 
 #include "node.h"
 #include <cinttypes>
-#include <iostream>
 #include <utility>
 
+#ifdef DEBUG
+#include <iostream>
+#endif
+
 /*
-* Safe deletes the value at the provide pointer.
+* Safely deletes the value at the provide pointer.
 */
 template<typename T>
 static void DeletePointer(T* p)
@@ -36,44 +39,14 @@ private:
 
             TraverseInOrder(node->Left);
 
-            #ifdef DEBUG
+            //#ifdef DEBUG
             std::cout << " " << node->Data << " ";
-            #endif
+            //#endif
 
             TraverseInOrder(node->Right);
 
             return node;
         }
-
-        // void TraversePostOrder(T* array, size_t size)
-        // {
-        // }
-
-        // void TraversePostOrder(T* array, size_t size)
-        // {
-        // }
-
-        // void Traverse(T* array, size_t size, TraversalType traversalType) // Wrapper function for the previously defined
-        // {
-        //     switch (traversalType)
-        //     {
-        //         case TraversalType::PreOrder:
-        //             this->TraversePreOrder(array, size);
-
-        //             break;
-
-        //         case TraversalType::InOrder:
-        //             this->TraverseInOrder(array, size);
-
-
-        //             break;
-
-        //         case TraversalType::PostOrder:
-        //             this->TraversePostOrder(array, size);
-
-        //             break;
-        //     }
-        // }
 
         void Delete(Node<T>* node) // Deletes all the nodes from the current instance of the tree.
         {
@@ -100,22 +73,36 @@ public:
        
         enum class NodeDirection
         {
-            Left,
-            Right
+           Left,
+           Right
         };
 
         struct NodePairInfo
         {
             Node<T>* Previous,
-                    *Next;
+                    *Current;
 
-            BinarySearchTree::NodeDirection Direction; // Direction in which Next succeeds Previous
+            BinarySearchTree::NodeDirection Direction; // Direction in which Current succeeds Previous
 
-            NodePairInfo() : Previous(nullptr), Next(nullptr), Direction(NodeDirection::Left)
+            NodePairInfo operator =(NodePairInfo& nodePairInfo)
+            {
+                return NodePairInfo(nodePairInfo);
+            }
+
+            NodePairInfo operator  =(NodePairInfo nodePairInfo)
+            {
+                return NodePairInfo(nodePairInfo);
+            }
+
+            NodePairInfo() : Previous(nullptr), Current(nullptr), Direction(NodeDirection::Left)
             {
             }
 
-            NodePairInfo(Node<T>* prev, Node<T>* next, BinarySearchTree::NodeDirection nodeDirection) : Previous(prev), Next(next), Direction(nodeDirection)
+            NodePairInfo(Node<T>* prev, Node<T>* current, BinarySearchTree::NodeDirection nodeDirection) : Previous(prev), Current(current), Direction(nodeDirection)
+            {
+            }
+
+            NodePairInfo(NodePairInfo& nodePairInfo) : Current(nodePairInfo.Current), Previous(nodePairInfo.Previous), Direction(nodePairInfo.Direction)
             {
             }
         };
@@ -136,22 +123,25 @@ public:
             return NodePairInfo(parent, node, NodeDirection::Left);
         }
 
-        // Replaces the Next node of the provided NodePairInfo with the substituteNode
+        // Replaces the Current node of the provided NodePairInfo with the substituteNode
         void Transplant(NodePairInfo& nodePair, Node<T>* substituteNode)
         {
+            if (!substituteNode)
+                return;
+
             switch (nodePair.Direction)
             {
                 case NodeDirection::Left:
-                    substituteNode->Left = nodePair.Next->Left;
-                    substituteNode->Right = nodePair.Next->Right;
+                    substituteNode->Left = nodePair.Current->Left;
+                    substituteNode->Right = nodePair.Current->Right;
 
                     nodePair.Previous->Left = substituteNode;
 
                     break;
 
                 case NodeDirection::Right:
-                    substituteNode->Left = nodePair.Next->Left;
-                    substituteNode->Right = nodePair.Next->Right;
+                    substituteNode->Left = nodePair.Current->Left;
+                    substituteNode->Right = nodePair.Current->Right;
 
                     nodePair.Previous->Right = substituteNode;
 
@@ -238,27 +228,22 @@ public:
             if (value == this->Root->Data)
                 return node;
 
-            while (node.Next) // Runs until next node is null.
-            {
-                if (value < node.Next->Data)
+            while (node.Current) // Runs until current node is null.
+                if (value < node.Current->Data)
                 {
-                    node.Previous = node.Next;
-                    node.Next = node.Next->Left;
+                    node.Previous = node.Current;
+                    node.Current = node.Current->Left;
 
                     node.Direction = NodeDirection::Left;
                 }
 
-                else if (value > node.Next->Data)
+                else if (value > node.Current->Data)
                 {
-                    node.Previous = node.Next;
-                    node.Next = node.Next->Right;
+                    node.Previous = node.Current;
+                    node.Current = node.Current->Right;
 
                     node.Direction = NodeDirection::Right;
                 }
-
-               else
-                   break;
-            }
 
             return node;
         }
@@ -267,38 +252,37 @@ public:
         {
             NodePairInfo node = this->GetNode(value), successor;
 
-            Node<T>* delNode = node.Next; // node to be deleted
+            Node<T>* delNode = node.Current; // node to be deleted
 
             if (delNode == this->Root)
                 this->DeleteNode(delNode);
 
-            else if (!delNode.Next)
-                return;
-
-            else if (!node.Next.Left && !node.Next.Right) // both children are null
-                this->DeleteNode(delNode);
-
-            else if (!node.Next.Left && node.Next.Right)
+            else if (!node.Current) // node doesnt exist
             {
-                this->Transplant(node, node.Next.Right);
-                this->DeleteNode(delNode);
+                //#ifdef DEBUG
+                std::cout << "Node doent exist.\n";
+                //#endif
+
+                return;
             }
 
-            else if (node.Next.Left && !node.Next.Right)
+            else if (!node.Current->Right)
             {
-                this->Transplant(node, node.Next.Left);
+                this->Transplant(node, node.Current->Left);
                 this->DeleteNode(delNode);
             }
 
             else
-                if (!((successor = this->GetSmallest(node.Right).Next)))
+                if (!((successor = this->GetSmallest(node.Current->Right)).Current))
                 {
-                    this->Transplant(node, node.Right);
+                    this->Transplant(node, node.Current->Right);
                     this->DeleteNode(delNode);
                 }
                 else
                 {
-                    this->Transplant(node, successor.Next);
+                    successor.Previous = nullptr;
+
+                    this->Transplant(node, successor.Current);
                     this->DeleteNode(delNode);
                 }
         }
