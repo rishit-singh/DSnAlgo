@@ -17,7 +17,7 @@
 * Safely deletes the value at the provide pointer.
 */
 template<typename T>
-static void DeletePointer(T* p)
+static void DeletePointer(T*& p)
 {
     if (!p) // null check
         return;
@@ -228,7 +228,7 @@ public:
             if (value == this->Root->Data)
                 return node;
 
-            while (node.Current) // Runs until current node is null.
+            while (node.Current && node.Current->Data != value) // Runs until current node is null.
                 if (value < node.Current->Data)
                 {
                     node.Previous = node.Current;
@@ -245,6 +245,7 @@ public:
                     node.Direction = NodeDirection::Right;
                 }
 
+
             return node;
         }
 
@@ -254,7 +255,7 @@ public:
 
             Node<T>* delNode = node.Current; // node to be deleted
 
-            if (delNode == this->Root)
+            if (value == this->Root->Data)
                 this->DeleteNode(delNode);
 
             else if (!node.Current) // node doesnt exist
@@ -275,7 +276,23 @@ public:
             else
                 if (!((successor = this->GetSmallest(node.Current->Right)).Current))
                 {
-                    this->Transplant(node, node.Current->Right);
+                    node.Current->Right->Left = node.Current->Left;
+                    node.Current->Right->Right = node.Current->Right;
+
+                    switch (node.Direction)
+                    {
+                        case NodeDirection::Left:
+                            node.Previous->Left = node.Current->Right;
+
+                            break;
+
+                        case NodeDirection::Right:
+                            node.Previous->Right = node.Current->Right;
+
+                            break;
+                    }
+
+                    //this->Transplant(node, node.Current->Right);
                     this->DeleteNode(delNode);
                 }
                 else
@@ -285,6 +302,7 @@ public:
                     this->Transplant(node, successor.Current);
                     this->DeleteNode(delNode);
                 }
+
         }
 
         void Traverse()
