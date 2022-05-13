@@ -28,41 +28,36 @@ static void DeletePointer(T*& p)
 }
 
 // Stores the binary tree nodes and related functions.
-template<typename T>
-class BinarySearchTree
-{
+template <typename T> class BinarySearchTree {
 private:
-        Node<T>* TraverseInOrder(Node<T>* node)
-        {
-            if (node == nullptr)
-                return node;
+  Node<T> *TraverseInOrder(Node<T> *node) {
+    if (node == nullptr)
+      return node;
 
-            TraverseInOrder(node->Left);
+    TraverseInOrder(node->Left);
 
-            //#ifdef DEBUG
-            std::cout << " " << node->Data << " ";
-            //#endif
+    //#ifdef DEBUG
+    std::cout << " " << node->Data << " ";
+    //#endif
 
-            TraverseInOrder(node->Right);
+    TraverseInOrder(node->Right);
 
-            return node;
-        }
+    return node;
+  }
 
-        void Delete(Node<T>* node) // Deletes all the nodes from the current instance of the tree.
-        {
-            if (!node)
-                return;
+  void Delete(Node<T> *node) // Deletes all the nodes from the current instance
+                             // of the tree.
+  {
+    if (!node)
+      return;
 
-            Delete(node->Left);
-            Delete(node->Right);
+    Delete(node->Left);
+    Delete(node->Right);
 
-            delete node;
-        }
+    delete node;
+  }
 
-        void DeleteNode(Node<T>* node)
-        {
-            DeletePointer<Node<T>>(node);
-        }
+  void DeleteNode(Node<T> *node) { DeletePointer<Node<T>>(node); }
 public:
         enum class TraversalType
         {
@@ -274,10 +269,9 @@ public:
             }
 
             else
-                if (!((successor = this->GetSmallest(node.Current->Right)).Current))
+                if (!node.Current->Right->Left) // No smaller child
                 {
                     node.Current->Right->Left = node.Current->Left;
-                    node.Current->Right->Right = node.Current->Right;
 
                     switch (node.Direction)
                     {
@@ -293,16 +287,17 @@ public:
                     }
 
                     //this->Transplant(node, node.Current->Right);
-                    this->DeleteNode(delNode);
+                    this->DeleteNode(node.Current);
                 }
                 else
                 {
-                    successor.Previous = nullptr;
+                    successor = this->GetSmallest(node.Current->Right);
+
+                    // successor.Previous->Left = nullptr;
 
                     this->Transplant(node, successor.Current);
                     this->DeleteNode(delNode);
                 }
-
         }
 
         void Traverse()
