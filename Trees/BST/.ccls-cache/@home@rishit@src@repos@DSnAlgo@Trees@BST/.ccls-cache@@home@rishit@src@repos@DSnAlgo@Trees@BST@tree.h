@@ -7,6 +7,7 @@
 
 #include "node.h"
 #include <cinttypes>
+ <utility>
 
 #ifdef DEBUG
 #include <iostream>
@@ -27,42 +28,36 @@ static void DeletePointer(T*& p)
 }
 
 // Stores the binary tree nodes and related functions.
-template <typename T>
-class BinarySearchTree
-{
+template <typename T> class BinarySearchTree {
 private:
-    Node<T> *TraverseInOrder(Node<T> *node)
-    {
-        if (node == nullptr)
-            return node;
+  Node<T> *TraverseInOrder(Node<T> *node) {
+    if (node == nullptr)
+      return node;
 
-        TraverseInOrder(node->Left);
+    TraverseInOrder(node->Left);
 
-        //#ifdef DEBUG
-        std::cout << " " << node->Data << " ";
-        //#endif
+    //#ifdef DEBUG
+    std::cout << " " << node->Data << " ";
+    //#endif
 
-        TraverseInOrder(node->Right);
+    TraverseInOrder(node->Right);
 
-        return node;
-    }
+    return node;
+  }
 
-    void Delete(Node<T> *node) // Deletes all the nodes from the current instance of the tree.
-    {
-        if (!node)
-            return;
+  void Delete(Node<T> *node) // Deletes all the nodes from the current instance
+                             // of the tree.
+  {
+    if (!node)
+      return;
 
-        Delete(node->Left);
-        Delete(node->Right);
+    Delete(node->Left);
+    Delete(node->Right);
 
-        delete node;
-    }
+    delete node;
+  }
 
-    void DeleteNode(Node<T> *node)
-    {
-        DeletePointer<Node<T>>(node);
-    }
-
+  void DeleteNode(Node<T> *node) { DeletePointer<Node<T>>(node); }
 public:
         enum class TraversalType
         {
@@ -129,20 +124,20 @@ public:
             if (!substituteNode)
                 return;
 
-            if (substituteNode != nodePair.Current->Right || substituteNode != nodePair.Current->Left) // No successor
-            {
-                substituteNode->Left = nodePair.Current->Left;
-                substituteNode->Right = nodePair.Current->Right;
-            }
-
             switch (nodePair.Direction)
             {
                 case NodeDirection::Left:
+                    substituteNode->Left = nodePair.Current->Left;
+                    substituteNode->Right = nodePair.Current->Right;
+
                     nodePair.Previous->Left = substituteNode;
 
                     break;
 
                 case NodeDirection::Right:
+                    substituteNode->Left = nodePair.Current->Left;
+                    substituteNode->Right = nodePair.Current->Right;
+
                     nodePair.Previous->Right = substituteNode;
 
                     break;
@@ -260,9 +255,9 @@ public:
 
             else if (!node.Current) // node doesnt exist
             {
-                #ifdef DEBUG
-                    std::cout << "Node doent exist.\n";
-                #endif
+                //#ifdef DEBUG
+                std::cout << "Node doent exist.\n";
+                //#endif
             }
 
             else if (!node.Current->Right)
@@ -271,35 +266,38 @@ public:
                 this->DeleteNode(delNode);
             }
 
-            else if (!node.Current->Right->Left) // No successor
-            {
-                node.Current->Right->Left = node.Current->Left;
-
-                switch (node.Direction)
-                {
-                    case NodeDirection::Left:
-                        node.Previous->Left = node.Current->Right;
-
-                        break;
-
-                    case NodeDirection::Right:
-                        node.Previous->Right = node.Current->Right;
-
-                        break;
-                }
-
-                //this->Transplant(node, node.Current->Right);
-                this->DeleteNode(node.Current);
-            }
             else
-            {
-                successor = this->GetSmallest(node.Current->Right);
+                if (!node.Current->Right->Left) // No smaller child
+                {
+                    node.Current->Right->Left = node.Current->Left;
 
-                // successor.Previous->Left = nullptr;
+                    switch (node.Direction)
+                    {
+                        case NodeDirection::Left:
+                            node.Previous->Left = node.Current->Right;
 
-                this->Transplant(node, successor.Current);
-                this->DeleteNode(delNode);
-            }
+                            break;
+
+                        case NodeDirection::Right:
+                            node.Previous->Right = node.Current->Right;
+
+                            break;
+                    }
+
+                    //this->Transplant(node, node.Current->Right);
+                    this->DeleteNode(node.Current);
+
+                    return;
+                }
+                else
+                {
+                    successor = this->GetSmallest(node.Current->Right);
+
+                    // successor.Previous->Left = nullptr;
+
+                    this->Transplant(node, successor.Current);
+                    this->DeleteNode(delNode);
+                }
         }
 
         void Traverse()
