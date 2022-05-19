@@ -38,9 +38,9 @@ private:
 
         TraverseInOrder(node->Left);
 
-        //#ifdef DEBUG
+        #ifdef DEBUG
         std::cout << " " << node->Data << " ";
-        //#endif
+        #endif
 
         TraverseInOrder(node->Right);
 
@@ -129,7 +129,7 @@ public:
             if (!substituteNode)
                 return;
 
-            if (substituteNode != nodePair.Current->Right || substituteNode != nodePair.Current->Left) // No successor
+            if (substituteNode != nodePair.Current->Right && substituteNode != nodePair.Current->Left) // No successor
             {
                 substituteNode->Left = nodePair.Current->Left;
                 substituteNode->Right = nodePair.Current->Right;
@@ -273,22 +273,7 @@ public:
 
             else if (!node.Current->Right->Left) // No successor
             {
-                node.Current->Right->Left = node.Current->Left;
-
-                switch (node.Direction)
-                {
-                    case NodeDirection::Left:
-                        node.Previous->Left = node.Current->Right;
-
-                        break;
-
-                    case NodeDirection::Right:
-                        node.Previous->Right = node.Current->Right;
-
-                        break;
-                }
-
-                //this->Transplant(node, node.Current->Right);
+                this->Transplant(node, node.Current->Right);
                 this->DeleteNode(node.Current);
             }
             else
