@@ -9,8 +9,13 @@ int main(int argc, char **argv)
 
     BinarySearchTree<int> binarySearchTree = BinarySearchTree<int>(new Node<int>(0));
 
-    for (int x = 1; x < 10; x++)
-        binarySearchTree.Insert(rand() % 100);
+
+    int n[8] = { 83, 77, 15, 93, 35, 86, 92, 49 };
+
+    for (int x = 0; x < 8; x++)
+        binarySearchTree.Insert(n[x]);
+
+    std::cout << '\n';
 
     binarySearchTree.Traverse();
 
@@ -25,6 +30,7 @@ int main(int argc, char **argv)
     binarySearchTree.Traverse();
     // binarySearchTree.num);
     // binarySearchTree.Traverse();
+    std::cout << '\n';
 
     return 0;
 }

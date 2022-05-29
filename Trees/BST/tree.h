@@ -31,7 +31,7 @@ template <typename T>
 class BinarySearchTree
 {
 private:
-    Node<T> *TraverseInOrder(Node<T> *node)
+    Node<T>* TraverseInOrder(Node<T> *node)
     {
         if (node == nullptr)
             return node;
@@ -47,7 +47,7 @@ private:
         return node;
     }
 
-    void Delete(Node<T> *node) // Deletes all the nodes from the current instance of the tree.
+    void Delete(Node<T>* node) // Deletes all the nodes from the current instance of the tree.
     {
         if (!node)
             return;
@@ -89,7 +89,7 @@ public:
                 return NodePairInfo(nodePairInfo);
             }
 
-            NodePairInfo operator  =(NodePairInfo nodePairInfo)
+            NodePairInfo operator =(NodePairInfo nodePairInfo)
             {
                 return NodePairInfo(nodePairInfo);
             }
@@ -123,30 +123,52 @@ public:
             return NodePairInfo(parent, node, NodeDirection::Left);
         }
 
+        void UpdateChild(NodePairInfo& nodePair, Node<T>* substituteNode)
+        {
+            if (nodePair.Current == nodePair.Previous->Left) // Child direction check
+                nodePair.Previous->Left = substituteNode;
+
+            else if (nodePair.Current == nodePair.Previous->Right) // Child direction check
+                nodePair.Previous->Right = substituteNode;
+        }
+
         // Replaces the Current node of the provided NodePairInfo with the substituteNode
         void Transplant(NodePairInfo& nodePair, Node<T>* substituteNode)
         {
             if (!substituteNode)
                 return;
 
-            if (substituteNode != nodePair.Current->Right && substituteNode != nodePair.Current->Left) // No successor
-            {
+            if (substituteNode == nodePair.Current->Right) // nodePair.Current is the parent of substitute node
                 substituteNode->Left = nodePair.Current->Left;
+
+            else if (substituteNode == nodePair.Current->Left) // nodePair.Current is the parent of substitute node
                 substituteNode->Right = nodePair.Current->Right;
-            }
 
-            switch (nodePair.Direction)
+            else
             {
-                case NodeDirection::Left:
-                    nodePair.Previous->Left = substituteNode;
-
-                    break;
-
-                case NodeDirection::Right:
-                    nodePair.Previous->Right = substituteNode;
-
-                    break;
+                substituteNode->Left = nodePair.Current->Right;
+                substituteNode->Right = nodePair.Current->Left;
             }
+
+            this->UpdateChild(nodePair, substituteNode);
+
+            // if (nodePair.Current == nodePair.Previous->Left) // Child direction check
+            //     nodePair.Previous->Left = substituteNode;
+            // else
+            //     nodePair.Previous->Right = substituteNode;
+
+            // switch (nodePair.Direction)
+            // {
+            //     case NodeDirection::Left:
+            //         nodePair.Previous->Left = substituteNode;
+
+            //         break;
+
+            //     case NodeDirection::Right:
+            //         nodePair.Previous->Right = substituteNode;
+
+            //         break;
+            // }
         }
 
 
@@ -245,7 +267,6 @@ public:
                     node.Direction = NodeDirection::Right;
                 }
 
-
             return node;
         }
 
@@ -255,7 +276,7 @@ public:
 
             Node<T>* delNode = node.Current; // node to be deleted
 
-            if (value == this->Root->Data)
+            if (value == this->Root->Data && (!this->Root->Left && !this->Root->Right))
                 this->DeleteNode(delNode);
 
             else if (!node.Current) // node doesnt exist
@@ -267,8 +288,13 @@ public:
 
             else if (!node.Current->Right)
             {
-                this->Transplant(node, node.Current->Left);
-                this->DeleteNode(delNode);
+                if (delNode == node.Previous->Right)
+                    node.Previous->Right = node.Current->Left;
+                else
+                    node.Previous->Left = node.Current->Left;
+
+                this->UpdateChild(node, delNode);
+                this->Delete(delNode);
             }
 
             else if (!node.Current->Right->Left) // No successor
@@ -276,6 +302,7 @@ public:
                 this->Transplant(node, node.Current->Right);
                 this->DeleteNode(node.Current);
             }
+
             else
             {
                 successor = this->GetSmallest(node.Current->Right);
