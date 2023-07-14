@@ -57,7 +57,7 @@ private:
 
     static void Merge(T* array, const size_t l, const size_t m, const size_t r)
     {
-        int n = m - l,
+        int n = m - l + 1,
             n1 = r - m;
 
         T left[n], right[n1];
@@ -70,7 +70,7 @@ private:
         for (int i = 0; i < n1; i++)
             right[i] = array[i + m + 1];
 
-        for (x = 0, y = 0, z = 0; x < n && y < n1; z++)
+        for (x = 0, y = 0, z = l; x < n && y < n1; z++)
             if (left[x] <= right[y])
                 array[z] = left[x++];
             else
@@ -119,7 +119,7 @@ public:
             Merge(array, l, mid, r);
         }
 
-        return array;
+        // return a rray;
     }
 };
 
