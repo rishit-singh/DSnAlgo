@@ -9,12 +9,12 @@ int main()
 
     int size = sizeof(array) / sizeof(int);
 
-    Sorting<int>::Sort(array, size);
+    Sorting<int>::MergeSort(array, 0, 9);
 
-    for (int x = 0; x < size; x++)
+    for (int x = 0; x < 10; x++)
         std::cout << array[x] << ' ';
 
-    std::cout << std::endl;
+    std::cout << '\n';
 
     return 0;
 }

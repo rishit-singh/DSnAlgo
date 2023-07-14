@@ -55,29 +55,72 @@ private:
         return array;
     }
 
+    static void Merge(T* array, const size_t l, const size_t m, const size_t r)
+    {
+        int n = m - l,
+            n1 = r - m;
+
+        T left[n], right[n1];
+
+        int x, y, z;
+
+        for (int i = 0; i < n; i++)
+            left[i] = array[l + i];
+
+        for (int i = 0; i < n1; i++)
+            right[i] = array[i + m + 1];
+
+        for (x = 0, y = 0, z = 0; x < n && y < n1; z++)
+            if (left[x] <= right[y])
+                array[z] = left[x++];
+            else
+                array[z] = right[y++];
+
+        for (; x < n; x++, z++)
+            array[z] = left[x];
+
+        for (; y < n1; y++, z++)
+            array[z] = right[y];
+    }
+
 public:
-        static inline SortingAlgorithm DefaultSortingAlgorithm = SortingAlgorithm::QuickSort;
+    static inline SortingAlgorithm DefaultSortingAlgorithm = SortingAlgorithm::QuickSort;
 
-        static T* Sort(T* array, size_t size)
+    static T* Sort(T* array, size_t size)
+    {
+        return Sorting<T>::Sort(array, size, Sorting::DefaultSortingAlgorithm);
+    }
+
+    static T* Sort(T* array, size_t size, SortingAlgorithm algo)
+    {
+        switch (algo)
         {
-            return Sorting<T>::Sort(array, size, Sorting::DefaultSortingAlgorithm);
+            case SortingAlgorithm::QuickSort:
+                Sorting::QuickSort(array, 0, size - 1);
+
+                break;
+
+            default:
+                return nullptr;
         }
 
-        static T* Sort(T* array, size_t size, SortingAlgorithm algo)
+        return array;
+    }
+
+    static T* MergeSort(T* array, const size_t l, const size_t r)
+    {
+        if (l < r)
         {
-            switch (algo)
-            {
-                case SortingAlgorithm::QuickSort:
-                    Sorting::QuickSort(array, 0, size - 1);
+            size_t mid = (l + (r - 1)) / 2;
 
-                    break;
+            MergeSort(array, l, mid);
+            MergeSort(array, mid + 1, r);
 
-                default:
-                    return nullptr;
-            }
-
-            return array;
+            Merge(array, l, mid, r);
         }
+
+        return array;
+    }
 };
 
 #endif // SORT_H_
