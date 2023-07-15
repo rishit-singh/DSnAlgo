@@ -9,7 +9,7 @@ int main()
 
     int size = sizeof(array) / sizeof(int);
 
-    Sorting<int>::MergeSort(array, 0, 9);
+    Sorting<int>::Sort(array, 10, SortingAlgorithm::MergeSort);
 
     for (int x = 0; x < 10; x++)
         std::cout << array[x] << ' ';

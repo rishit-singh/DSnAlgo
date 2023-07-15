@@ -14,7 +14,8 @@ static void Swap(T* val, T* val1)
 
 enum class SortingAlgorithm
 {
-    QuickSort
+    QuickSort,
+    MergeSort
 };
 
 template<typename T>
@@ -83,6 +84,21 @@ private:
             array[z] = right[y];
     }
 
+    static T* MergeSort(T* array, const size_t l, const size_t r)
+    {
+        if (l < r)
+        {
+            size_t mid = (l + (r - 1)) / 2;
+
+            MergeSort(array, l, mid);
+            MergeSort(array, mid + 1, r);
+
+            Merge(array, l, mid, r);
+        }
+
+        return array;
+    }
+
 public:
     static inline SortingAlgorithm DefaultSortingAlgorithm = SortingAlgorithm::QuickSort;
 
@@ -100,26 +116,16 @@ public:
 
                 break;
 
+            case SortingAlgorithm::MergeSort:
+                Sorting::MergeSort(array, 0, size - 1);
+
+                break;
+
             default:
                 return nullptr;
         }
 
         return array;
-    }
-
-    static T* MergeSort(T* array, const size_t l, const size_t r)
-    {
-        if (l < r)
-        {
-            size_t mid = (l + (r - 1)) / 2;
-
-            MergeSort(array, l, mid);
-            MergeSort(array, mid + 1, r);
-
-            Merge(array, l, mid, r);
-        }
-
-        // return a rray;
     }
 };
 
