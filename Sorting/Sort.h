@@ -84,6 +84,18 @@ private:
             array[z] = right[y];
     }
 
+    static void Merge(T* array, const size_t size)
+    {
+        for (int gap = size / 2; gap > 0; gap /= 2)
+           for (int x = 0; x < size; x += gap)
+               if (array[x] > array[x + gap])
+               {
+                   T temp = array[x];
+                   array[x] = array[x + 1];
+                   array[x + 1] = temp;
+               }
+    }
+
     static T* MergeSort(T* array, const size_t l, const size_t r)
     {
         if (l < r)
