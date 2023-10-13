@@ -5,12 +5,14 @@
 #include <iostream> 
 #include <stdlib.h>
 
+template<typename T>
+using TraverseCallback = void(*)(T);
+
 enum class HeapType 
 {
 	Max,
 	Min
 };
-
 
 template<typename T>
 inline void VectorSwap(std::vector<T>& vec, size_t index, size_t index1)
@@ -22,9 +24,24 @@ inline void VectorSwap(std::vector<T>& vec, size_t index, size_t index1)
 }
 
 template<typename T>
+inline void Swap(T& val, T& val1)
+{
+	T temp = val;
+
+	val = val1;
+	val1 = temp;
+}
+
+template<typename T>
 T Max(T a, T b)
 {
 	return (a > b) ? a : b;
+}
+
+template<typename T>
+T Min(T a, T b)
+{
+	return (a < b) ? a : b;
 }
 
 template<typename T = uint32_t>
@@ -60,6 +77,9 @@ public:
 	
 	const size_t GetSize() const;
 
+	void Traverse(const TraverseCallback<T>);
+	
+	void Traverse(const size_t, const TraverseCallback<T>);
 	
  	friend std::ostream& operator << <> (std::ostream& stream, const Heap<T>& heap);
 
@@ -109,8 +129,8 @@ void Heap<T>::GenerateMax(size_t index)
 		   right =  this->GetRight(index) - 1,
 		   largest;
 			
-	T value = this->Buffer[index - 1], max = Max<T>(Max<T>(this->Buffer[left], this->Buffer[right]), value); 	
-	
+	T value = this->Buffer[index - 1], 
+	  max = Max<T>(Max<T>(this->Buffer[left], this->Buffer[right]), value); 	
 		
 	if (max == this->Buffer[left])
 	{
@@ -129,6 +149,25 @@ void Heap<T>::GenerateMax(size_t index)
 template<typename T>
 void Heap<T>::GenerateMin(size_t index)
 {
+	T left = this->GetLeft(index),
+	  right = this->GetRight(index),
+	  value = this->Buffer[index];
+
+
+	T min = Min<T>(Min<T>(left, right), value);
+
+	if (min == left)
+	{
+		VectorSwap<T>(this->Buffer, left, index - 1);
+
+		this->GenerateMin(left);
+	}
+	else if (min == right)
+	{
+		VectorSwap<T>(this->Buffer, right, index - 1);
+
+		this->GenerateMin(right);
+	}
 }
 
 template<typename T>
@@ -142,11 +181,30 @@ void Heap<T>::Generate()
 			this->GenerateMin(x);
 }
 
-
 template<typename T>
 const size_t Heap<T>::GetSize() const 
 {
 	return this->Size;
+}
+
+
+template<typename T>
+void Heap<T>::Traverse(const TraverseCallback<T> callback) 
+{
+	this->Traverse(1, callback); 
+}
+
+template<typename T>
+void Heap<T>::Traverse(const size_t index, const TraverseCallback<T> callback)
+{
+	if (index >= this->Size)
+		return;
+
+	this->Traverse(this->GetLeft(index), callback);
+	
+	callback(this->Buffer[index]);
+
+	this->Traverse(this->GetRight(index), callback);
 }
 
 template<typename T>

@@ -6,6 +6,12 @@ int main(int argc, char** argv)
 
 	heap.Generate();
 
+	heap.Traverse([](int value){ 
+				std::cout << value << " ";
+			});
+
+	std::cout << '\n';
+
 	std::cout << heap;
 
 	return 0;
