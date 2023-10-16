@@ -81,6 +81,11 @@ public:
 	
 	void Traverse(const size_t, const TraverseCallback<T>);
 	
+	Heap(const Heap<T>&);	
+
+	Heap& operator =(const Heap<T>&);
+	Heap& operator =(Heap<T>&&);
+
  	friend std::ostream& operator << <> (std::ostream& stream, const Heap<T>& heap);
 
 	Heap(std::vector<T> = std::vector<T>(), HeapType = HeapType::Max);
@@ -197,7 +202,7 @@ void Heap<T>::Traverse(const TraverseCallback<T> callback)
 template<typename T>
 void Heap<T>::Traverse(const size_t index, const TraverseCallback<T> callback)
 {
-	if (index >= this->Size)
+	if (index >=this->Size)
 		return;
 
 	this->Traverse(this->GetLeft(index), callback);
