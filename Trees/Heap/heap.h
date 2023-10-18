@@ -80,7 +80,9 @@ public:
 	void Traverse(const TraverseCallback<T>);
 	
 	void Traverse(const size_t, const TraverseCallback<T>);
-	
+
+	void Sort();
+
 	Heap(const Heap<T>&);	
 
 	Heap& operator =(const Heap<T>&);
@@ -211,6 +213,20 @@ void Heap<T>::Traverse(const size_t index, const TraverseCallback<T> callback)
 
 	this->Traverse(this->GetRight(index), callback);
 }
+
+template<typename T>
+void Heap<T>::Sort() 
+{
+	this->Generate();
+		
+	for (int x = this->Buffer.size() - 1; x > 0; x--)
+	{
+		VectorSwap<T>(this->Buffer, 0, x);
+	
+		this->GenerateMax(1);
+	}	
+}
+
 
 template<typename T>
 std::ostream& operator <<(std::ostream& stream, const Heap<T>& heap) 
