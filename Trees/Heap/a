@@ -138,14 +138,15 @@ void Heap<T>::GenerateMax(size_t index)
 		   right = this->GetRight(index),
 		   largest; 
 		
-	T value = this->Buffer[index]; 
+	T value = this->Buffer[index], 
+	  max = Max<T>(Max<T>(this->Buffer[left], this->Buffer[right]), value); 
 		
 	if (left < this->Size && this->Buffer[left] > value)
 		largest = left;
 	else
 		largest = index;
 
-	if (right < this->Size && this->Buffer[right] > this->Buffer[largest])
+	if (right < this->Size && this->Buffer[right] > largest)
 		largest = right;
 	
 	if (largest != index)
