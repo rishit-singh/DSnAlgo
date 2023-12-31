@@ -5,30 +5,13 @@
 #include <iostream> 
 #include <stdlib.h>
 #include <iterator>
+#include <algorithm>
 
 enum class HeapType 
 {
 	Max,
 	Min
 };
-
-template<typename T>
-inline void VectorSwap(std::vector<T>& vec, size_t index, size_t index1)
-{	
-	T temp = vec[index];
-
-	vec[index] = vec[index1];
-	vec[index1] = temp;
-}
-
-template<typename T>
-inline void Swap(T& val, T& val1)
-{
-	T temp = val;
-
-	val = val1;
-	val1 = temp;
-}
 
 template<typename T>
 T Max(T a, T b)
@@ -169,7 +152,7 @@ void Heap<T>::GenerateMax(size_t index)
 	
 	if (largest != index)
 	{
-		VectorSwap<T>(this->Buffer, largest, index);
+		std::swap(this->Buffer[largest], this->Buffer[index]);
 
 		this->GenerateMax(largest);
 	}
@@ -186,13 +169,13 @@ void Heap<T>::GenerateMin(size_t index)
 
 	if (min == left)
 	{
-		VectorSwap<T>(this->Buffer, left, index);
+		std::swap(this->Buffer[left], this->Buffer[index]);
 
 		this->GenerateMin(left);
 	}
 	else if (min == right)
 	{
-		VectorSwap<T>(this->Buffer, right, index);
+		std::swap(this->Buffer[right], this->Buffer[index]);
 
 		this->GenerateMin(right);
 	}
