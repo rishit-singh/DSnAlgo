@@ -224,7 +224,7 @@ void Heap<T>::Sort()
 		
 	for (int x = this->Size - 1; x >= 1; x--)
 	{
-		VectorSwap<T>(this->Buffer, 0, x);
+		std::swap(this->Buffer[0], this->Buffer[x]);
 	
 		this->GenerateMax(0);
 	}	
