@@ -4,9 +4,7 @@
 #include <vector>
 #include <iostream> 
 #include <stdlib.h>
-
-template<typename T>
-using TraverseCallback = void(*)(T);
+#include <iterator>
 
 enum class HeapType 
 {
@@ -50,6 +48,8 @@ class Heap ;
 template<typename T = uint32_t>
 std::ostream& operator << (std::ostream& stream, const Heap<T>& heap);
 
+template<typename T>
+using TraverseCallback = std::function<void(T)>;   
 
 template<typename T>
 class Heap 
@@ -66,9 +66,26 @@ private:
 	
 	std::vector<T> Buffer;
 
-	size_t Size { 0 };
+	size_t Size;
 
 public:
+	class iterator
+	{
+		size_t Index;
+
+		const Heap<T> Heap;
+
+	public:
+		explicit iterator(const ::Heap<T>& heap, const size_t );
+			
+		iterator& operator ++() noexcept;				
+		iterator& operator ++(const int) noexcept;
+		bool operator ==(const iterator&) const noexcept;				
+		bool operator !=(const iterator&) const noexcept;
+
+		T operator *() const noexcept;
+	};
+
 	void Generate();
 
 	const HeapType GetType() const;
@@ -77,28 +94,30 @@ public:
 	
 	const size_t GetSize() const;
 
-	void Traverse(const TraverseCallback<T>);
+	void Traverse(const TraverseCallback<T>) const noexcept;
 	
-	void Traverse(const size_t, const TraverseCallback<T>);
+	void Traverse(const size_t, const TraverseCallback<T>) const noexcept;
 
 	void Sort();
 
-	Heap(const Heap<T>&);
+	iterator begin(); 
+	iterator end(); 
+
+	Heap(const Heap<T>&) = default;
+	Heap(Heap<T>&&) = default;
 
 	Heap& operator =(const Heap<T>&);
 	Heap& operator =(Heap<T>&&);
 
  	friend std::ostream& operator << <> (std::ostream& stream, const Heap<T>& heap);
 
-	Heap(std::vector<T> = { }, HeapType = HeapType::Max);
+	Heap(const std::vector<T> = { }, HeapType = HeapType::Max);
 	~Heap() = default;
 };
  
 template<typename T>
-Heap<T>::Heap(std::vector<T> elements, HeapType type) : Type(type), Buffer(elements), Size(elements.size())
+Heap<T>::Heap(const std::vector<T> elements, HeapType type) : Type(type), Buffer(elements), Size(elements.size())
 {
-//	for (auto x : elements)
-//		this->Buffer.push_back(x);
 }
 
 template<typename T>
@@ -197,13 +216,13 @@ const size_t Heap<T>::GetSize() const
 }
 
 template<typename T>
-void Heap<T>::Traverse(const TraverseCallback<T> callback) 
+void Heap<T>::Traverse(const TraverseCallback<T> callback) const noexcept
 {
 	this->Traverse(1, callback); 
 } 
 
 template<typename T>
-void Heap<T>::Traverse(const size_t index, const TraverseCallback<T> callback) 
+void Heap<T>::Traverse(const size_t index, const TraverseCallback<T> callback) const noexcept 
 {
 	if (index >= this->Size)
 		return;
@@ -228,7 +247,6 @@ void Heap<T>::Sort()
 	}	
 }
 
-
 template<typename T>
 std::ostream& operator <<(std::ostream& stream, const Heap<T>& heap) 
 {
@@ -241,6 +259,59 @@ std::ostream& operator <<(std::ostream& stream, const Heap<T>& heap)
 
 	return stream;
 }
+
+template<typename T>
+Heap<T>::iterator::iterator(const ::Heap<T>& heap, const size_t index) : Heap(heap), Index(index)
+{
+}
+
+template<typename T>
+Heap<T>::iterator& Heap<T>::iterator::operator ++() noexcept 
+{
+	
+	this->Index++;
+
+	return *this;
+}
+
+template<typename T>
+Heap<T>::iterator& Heap<T>::iterator::operator ++(const int difference) noexcept 
+{
+	this->Index += difference;
+
+	return *this;
+}
+
+template<typename T>
+bool Heap<T>::iterator::operator ==(const ::Heap<T>::iterator& rhs) const noexcept 
+{
+	return (this->Index == rhs.Index);
+}
+
+template<typename T>
+bool Heap<T>::iterator::operator !=(const ::Heap<T>::iterator& rhs) const noexcept 
+{
+	return (!(this->Index == rhs.Index));
+}
+
+template<typename T>
+T Heap<T>::iterator::operator *() const noexcept 
+{
+	return this->Heap.Buffer[this->Index];
+}
+
+template<typename T>
+Heap<T>::iterator Heap<T>::begin() 
+{
+	return iterator(*this, 0); 
+}
+
+template<typename T>
+Heap<T>::iterator Heap<T>::end() 
+{
+	return iterator(*this, this->Size); 
+}
+
 
 #endif
   

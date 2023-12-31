@@ -6,20 +6,17 @@ int main(int argc, char** argv)
 
 	heap.Generate();
 
-//	heap.Traverse([](int value){ 
-//				std::cout << value << " ";
-//			});
-	
-
-
 	std::cout << heap;
 	std::cout << '\n';
 	
 	heap.Sort();
+	
+	for (auto val : heap)
+		std::cout << val << " ";
 
-	std::cout << heap;
 	std::cout << '\n';
 
 
 	return 0;
 }
+
