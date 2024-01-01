@@ -225,7 +225,8 @@ void Heap<T>::Sort()
 	for (int x = this->Size - 1; x >= 1; x--)
 	{
 		std::swap(this->Buffer[0], this->Buffer[x]);
-	
+		this->Size--;
+
 		this->GenerateMax(0);
 	}	
 }
@@ -292,7 +293,7 @@ Heap<T>::iterator Heap<T>::begin()
 template<typename T>
 Heap<T>::iterator Heap<T>::end() 
 {
-	return iterator(*this, this->Size); 
+	return iterator(*this, this->Buffer.size()); 
 }
 
 
