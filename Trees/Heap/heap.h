@@ -52,23 +52,6 @@ private:
 	size_t Size;
 
 public:
-	class iterator
-	{
-		size_t Index;
-
-		const Heap<T> Heap;
-
-	public:
-		explicit iterator(const ::Heap<T>& heap, const size_t );
-			
-		iterator& operator ++() noexcept;				
-		iterator& operator ++(const int) noexcept;
-		bool operator ==(const iterator&) const noexcept;				
-		bool operator !=(const iterator&) const noexcept;
-
-		T operator *() const noexcept;
-	};
-
 	void Generate();
 
 	const HeapType GetType() const;
@@ -83,8 +66,8 @@ public:
 
 	void Sort();
 
-	iterator begin(); 
-	iterator end(); 
+	std::vector<T>::iterator begin(); 
+	std::vector<T>::iterator end(); 
 
 	Heap(const Heap<T>&) = default;
 	Heap(Heap<T>&&) = default;
@@ -220,14 +203,14 @@ template<typename T>
 void Heap<T>::Sort() 
 {
 	this->Generate();
-		
+	
 	for (int x = this->Size - 1; x >= 1; x--)
 	{
 		std::swap(this->Buffer[0], this->Buffer[x]);
 		this->Size--;
 
 		this->GenerateMax(0);
-	}	
+	}
 }
 
 template<typename T>
@@ -243,56 +226,17 @@ std::ostream& operator <<(std::ostream& stream, const Heap<T>& heap)
 	return stream;
 }
 
+
 template<typename T>
-Heap<T>::iterator::iterator(const ::Heap<T>& heap, const size_t index) : Heap(heap), Index(index)
+std::vector<T>::iterator Heap<T>::begin() 
 {
+	return this->Buffer.begin();
 }
 
 template<typename T>
-Heap<T>::iterator& Heap<T>::iterator::operator ++() noexcept 
+std::vector<T>::iterator Heap<T>::end() 
 {
-	
-	this->Index++;
-
-	return *this;
-}
-
-template<typename T>
-Heap<T>::iterator& Heap<T>::iterator::operator ++(const int difference) noexcept 
-{
-	this->Index += difference;
-
-	return *this;
-}
-
-template<typename T>
-bool Heap<T>::iterator::operator ==(const ::Heap<T>::iterator& rhs) const noexcept 
-{
-	return (this->Index == rhs.Index);
-}
-
-template<typename T>
-bool Heap<T>::iterator::operator !=(const ::Heap<T>::iterator& rhs) const noexcept 
-{
-	return (!(this->Index == rhs.Index));
-}
-
-template<typename T>
-T Heap<T>::iterator::operator *() const noexcept 
-{
-	return this->Heap.Buffer[this->Index];
-}
-
-template<typename T>
-Heap<T>::iterator Heap<T>::begin() 
-{
-	return iterator(*this, 0); 
-}
-
-template<typename T>
-Heap<T>::iterator Heap<T>::end() 
-{
-	return iterator(*this, this->Buffer.size()); 
+	return this->Buffer.end();
 }
 
 
