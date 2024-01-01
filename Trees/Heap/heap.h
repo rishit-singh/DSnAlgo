@@ -163,21 +163,20 @@ void Heap<T>::GenerateMin(size_t index)
 {
 	T left = this->GetLeft(index),
 	  right = this->GetRight(index),
-	  value = this->Buffer[index];
+	  value = this->Buffer[index],
+	  smallest = index;
 
-	T min = Min<T>(Min<T>(left, right), value);
+	if (left < this->Size && this->Buffer[left] < value)
+		smallest = left;
 
-	if (min == left)
+	if (right < this->Size && this->Buffer[right] < this->Buffer[smallest])
+		smallest = right;
+
+	if (smallest != index)
 	{
-		std::swap(this->Buffer[left], this->Buffer[index]);
+		std::swap(this->Buffer[smallest], this->Buffer[index]);
 
-		this->GenerateMin(left);
-	}
-	else if (min == right)
-	{
-		std::swap(this->Buffer[right], this->Buffer[index]);
-
-		this->GenerateMin(right);
+		this->GenerateMin(smallest);
 	}
 }
 
