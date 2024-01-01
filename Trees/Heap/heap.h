@@ -239,7 +239,5 @@ std::vector<T>::iterator Heap<T>::end()
 	return this->Buffer.end();
 }
 
-
 #endif
-  
 
