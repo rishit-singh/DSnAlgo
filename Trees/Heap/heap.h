@@ -75,7 +75,9 @@ public:
 	Heap& operator =(const Heap<T>&);
 	Heap& operator =(Heap<T>&&);
 
- 	friend std::ostream& operator << <> (std::ostream& stream, const Heap<T>& heap);
+	friend std::ostream& operator << <> (std::ostream& stream, const Heap<T>& heap);
+
+	T operator [](const size_t);
 
 	Heap(const std::vector<T> = { }, HeapType = HeapType::Max);
 	~Heap() = default;
@@ -115,7 +117,7 @@ T Heap<T>::GetRight(size_t index)
 {
 	return (index * 2) + 2;
 } 
-
+ 
 template<typename T>
 void Heap<T>::GenerateMax(size_t index)
 {
@@ -217,7 +219,7 @@ template<typename T>
 std::ostream& operator <<(std::ostream& stream, const Heap<T>& heap) 
 {
 	std::cout << "[ ";
-
+ 
 	for (size_t x = 1; x < heap.Buffer.size() - 1; x++)
 		stream << heap.Buffer[x] << ", ";
 
@@ -226,6 +228,11 @@ std::ostream& operator <<(std::ostream& stream, const Heap<T>& heap)
 	return stream;
 }
 
+template<typename T>
+T Heap<T>::operator [](const size_t index)
+{
+	return this->Buffer[index];
+}
 
 template<typename T>
 std::vector<T>::iterator Heap<T>::begin() 
