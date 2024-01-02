@@ -69,6 +69,8 @@ public:
 	std::vector<T>::iterator begin(); 
 	std::vector<T>::iterator end(); 
 
+	[[nodiscard]] std::vector<T>::iterator Find(T) const noexcept;
+
 	Heap(const Heap<T>&) = default;
 	Heap(Heap<T>&&) = default;
 
@@ -77,7 +79,7 @@ public:
 
 	friend std::ostream& operator << <> (std::ostream& stream, const Heap<T>& heap);
 
-	T operator [](const size_t);
+	T& operator [](const size_t) const;
 
 	Heap(const std::vector<T> = { }, HeapType = HeapType::Max);
 	~Heap() = default;
@@ -161,6 +163,7 @@ void Heap<T>::GenerateMin(size_t index)
 	{
 		std::swap(this->Buffer[smallest], this->Buffer[index]);
 
+
 		this->GenerateMin(smallest);
 	}
 }
@@ -204,15 +207,27 @@ void Heap<T>::Traverse(const size_t index, const TraverseCallback<T> callback) c
 template<typename T>
 void Heap<T>::Sort() 
 {
-	this->Generate();
+	this->Generate(); 
 	
 	for (int x = this->Size - 1; x >= 1; x--)
 	{
 		std::swap(this->Buffer[0], this->Buffer[x]);
+
 		this->Size--;
 
 		this->GenerateMax(0);
 	}
+}
+
+
+template<typename T>
+[[nodiscard]] std::vector<T>::iterator Heap<T>::Find(T val) const noexcept
+{
+	std::vector<T>::iterator it;
+
+	for (it = this->begin(); it != this->end() || *it != val; it++);
+
+	return it;
 }
 
 template<typename T>
@@ -229,7 +244,7 @@ std::ostream& operator <<(std::ostream& stream, const Heap<T>& heap)
 }
 
 template<typename T>
-T Heap<T>::operator [](const size_t index)
+T& Heap<T>::operator [](const size_t index) const
 {
 	return this->Buffer[index];
 }
