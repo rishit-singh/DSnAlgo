@@ -44,7 +44,7 @@ private:
 	T GetParent(size_t);
 	T GetLeft(size_t);
 	T GetRight(size_t);
-
+	
 	HeapType Type;
 	
 	std::vector<T> Buffer;
@@ -58,24 +58,32 @@ public:
 	
 	void SetType(HeapType);
 	
-	const size_t GetSize() const;
+	size_t GetSize() const noexcept;
+
+	T GetMax() const noexcept;
+	
+	[[nodiscard]] T ExtractMax() noexcept;
+
+	void Insert(T) noexcept;
+	void Delete(T);
 
 	void Traverse(const TraverseCallback<T>) const noexcept;
-	
 	void Traverse(const size_t, const TraverseCallback<T>) const noexcept;
+	
 
 	void Sort();
 
 	std::vector<T>::iterator begin(); 
 	std::vector<T>::iterator end(); 
 
-	[[nodiscard]] std::vector<T>::iterator Find(T) const noexcept;
+	[[nodiscard]] std::vector<T>::iterator Find(T) noexcept;
 
 	Heap(const Heap<T>&) = default;
 	Heap(Heap<T>&&) = default;
 
 	Heap& operator =(const Heap<T>&);
 	Heap& operator =(Heap<T>&&);
+
 
 	friend std::ostream& operator << <> (std::ostream& stream, const Heap<T>& heap);
 
@@ -171,6 +179,9 @@ void Heap<T>::GenerateMin(size_t index)
 template<typename T>
 void Heap<T>::Generate() 
 {
+	if (this->Buffer.size() < 1)
+		throw std::runtime_error("Cant generate a heap with no elements in the buffer."); 
+
 	if (this->Type == HeapType::Max)
 		for (int x = (this->Size / 2) - 1; x >= 0; x--)
 			this->GenerateMax(x);
@@ -180,7 +191,7 @@ void Heap<T>::Generate()
 }
 
 template<typename T>
-const size_t Heap<T>::GetSize() const 
+size_t Heap<T>::GetSize() const noexcept 
 {
 	return this->Size;
 }
@@ -190,6 +201,7 @@ void Heap<T>::Traverse(const TraverseCallback<T> callback) const noexcept
 {
 	this->Traverse(1, callback); 
 } 
+
 
 template<typename T>
 void Heap<T>::Traverse(const size_t index, const TraverseCallback<T> callback) const noexcept 
@@ -219,13 +231,65 @@ void Heap<T>::Sort()
 	}
 }
 
+template<typename T>
+void Heap<T>::Insert(T val) noexcept
+{
+	this->Buffer.push_back(val);
+
+	this->Size++;
+
+	int index = this->Size - 1;
+
+	int parent = this->GetParent(index);	
+
+	if (this->Type == HeapType::Max)
+		for (; this->Buffer[parent] < val && index >= 0; index = parent, parent = this->GetParent(parent))
+			std::swap(this->Buffer[parent], this->Buffer[index]);
+	else
+		for (; this->Buffer[parent] > val && index >= 0; index = parent, parent = this->GetParent(parent))
+			std::swap(this->Buffer[parent], this->Buffer[index]);
+}
 
 template<typename T>
-[[nodiscard]] std::vector<T>::iterator Heap<T>::Find(T val) const noexcept
+void Heap<T>::Delete(T element)
 {
-	std::vector<T>::iterator it;
+	auto it = this->Find(element);
+	
+	size_t index = std::distance(this->begin(), it);
 
-	for (it = this->begin(); it != this->end() || *it != val; it++);
+	if (it != this->end())
+		std::swap(this->Buffer[index], this->Buffer[--this->Size]);
+	else 
+		throw std::runtime_error("Element to delete was not found.");
+
+	if (this->Type == HeapType::Max)
+		this->GenerateMax(index);
+	else	
+		this->GenerateMin(index);
+}
+
+template<typename T>
+T Heap<T>::GetMax() const noexcept
+{
+	return this->Buffer[0];
+}
+
+template<typename T>
+[[nodiscard]] T Heap<T>::ExtractMax() noexcept
+{
+	T val = this->Buffer[0];
+		
+	this->Delete(val);
+
+	return val;
+}
+
+template<typename T>
+[[nodiscard]] std::vector<T>::iterator Heap<T>::Find(T val) noexcept
+{
+	typename std::vector<T>::iterator it;
+
+	for (it = this->begin(); it != this->end() && *it != val; it++);
 
 	return it;
 }
@@ -250,7 +314,7 @@ T& Heap<T>::operator [](const size_t index) const
 }
 
 template<typename T>
-std::vector<T>::iterator Heap<T>::begin() 
+std::vector<T>::iterator Heap<T>::begin()
 {
 	return this->Buffer.begin();
 }
@@ -262,4 +326,5 @@ std::vector<T>::iterator Heap<T>::end()
 }
 
 #endif
+
 
