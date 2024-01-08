@@ -16,12 +16,12 @@ public:
 	
 	std::shared_ptr<Node<T>> Right;
 
-	Node(std::shared_ptr<Node<T>>, std::shared_ptr<Node<T>>);
+	Node(T, std::shared_ptr<Node<T>>, std::shared_ptr<Node<T>>);
 };
 
 template<typename T>
-Node<T>::Node(std::shared_ptr<Node<T>> left, std::shared_ptr<Node<T>> right) 
-	: Left(left), Right(right)
+Node<T>::Node(T data, std::shared_ptr<Node<T>> left, std::shared_ptr<Node<T>> right) 
+	: Data(data), Left(left), Right(right)
 {
 }
 
@@ -29,9 +29,12 @@ template<typename T>
 class Tree
 {
 public:
+	std::shared_ptr<Node<T>> Root; 
+		
+	virtual void Traverse(std::shared_ptr<Node<T>>, TraverseCallback<T>) = 0;
 	virtual void Traverse(TraverseCallback<T>) = 0;
 	virtual void Insert(T) = 0;
-	virtual Node<T> Get(T); 
+	virtual std::shared_ptr<Node<T>> Get(T) = 0; 
 };
 
 #endif

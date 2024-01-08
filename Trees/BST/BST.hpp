@@ -43,8 +43,22 @@ BinarySearchTree<T>::BinarySearchTree(std::shared_ptr<Node<T>> root) : Root(root
 {}
 
 template<typename T>
+void BinarySearchTree<T>::Traverse(TraverseCallback<T> callback) 
+{
+	this->Traverse(this->Root, callback);
+}
+
+template<typename T>
 void BinarySearchTree<T>::Traverse(std::shared_ptr<Node<T>> node, TraverseCallback<T> callback) 
 {
+	if (!node)
+		return;
+
+	this->Traverse(node->Left, callback);
+		
+	callback(node->Data, Direction::Left); 
+
+	this->Traverse(node->Right, callback);
 }
 
 template<typename T>
@@ -66,10 +80,6 @@ void BinarySearchTree<T>::Traverse(std::shared_ptr<Node<T>> node, BSTTraverseCal
 	this->Traverse(node->Right, callback);
 }
 
-template<typename T>
-void BinarySearchTree<T>::Traverse(TraverseCallback<T> callback) 
-{
-}
 
 template<typename T>
 std::shared_ptr<Node<T>> BinarySearchTree<T>::Get(T value)
