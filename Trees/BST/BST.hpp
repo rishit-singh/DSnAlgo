@@ -2,21 +2,16 @@
 #define BST_H_
 
 #include "tree.hpp"
-
-enum class Direction
-{
-	Left,
-	Right
-};
+#include <functional>
 
 template<typename T>
-using BSTTraverseCallback = void(*)(T, Direction);
+using BSTTraverseCallback = std::function<void(T, Direction)>;
 
 template<typename T>
 class BinarySearchTree : public Tree<T>
 {
 protected:
-	std::shared_ptr<Node<T>> SeekNode(T, std::shared_ptr<Node<T>>);
+	std::pair<std::shared_ptr<Node<T>>, Direction> SeekNode(T, std::shared_ptr<Node<T>>, Direction = Direction::Left);
 
 	void Insert(T, std::shared_ptr<Node<T>>);
 
@@ -24,16 +19,19 @@ public:
 	std::shared_ptr<Node<T>> Root;	
 
 	void Insert(T) override;
-	
+
+	T Delete(T);
+
 	void Traverse(TraverseCallback<T>) override;
 	void Traverse(std::shared_ptr<Node<T>>, TraverseCallback<T>) override;
 
 	void Traverse(BSTTraverseCallback<T>);
 	void Traverse(std::shared_ptr<Node<T>>, BSTTraverseCallback<T>);
 
-	std::shared_ptr<Node<T>> Get(T) override;
+	[[nodiscard]] std::pair<std::shared_ptr<Node<T>>, Direction> Get(T) override;
 
 	BinarySearchTree(std::shared_ptr<Node<T>> = nullptr);
+
 	virtual ~BinarySearchTree() = default;
 };
 
@@ -56,7 +54,7 @@ void BinarySearchTree<T>::Traverse(std::shared_ptr<Node<T>> node, TraverseCallba
 
 	this->Traverse(node->Left, callback);
 		
-	callback(node->Data, Direction::Left); 
+	callback(node->Data); 
 
 	this->Traverse(node->Right, callback);
 }
@@ -82,27 +80,27 @@ void BinarySearchTree<T>::Traverse(std::shared_ptr<Node<T>> node, BSTTraverseCal
 
 
 template<typename T>
-std::shared_ptr<Node<T>> BinarySearchTree<T>::Get(T value)
+std::pair<std::shared_ptr<Node<T>>, Direction> BinarySearchTree<T>::Get(T value)
 {
 	return this->SeekNode(value, this->Root);
 } 
 
 template<typename T>
-std::shared_ptr<Node<T>> BinarySearchTree<T>::SeekNode(T value, std::shared_ptr<Node<T>> node) 
+std::pair<std::shared_ptr<Node<T>>, Direction> BinarySearchTree<T>::SeekNode(T value, std::shared_ptr<Node<T>> node, Direction direction) 
 {
 	if (!node)
-		return nullptr;
+		return std::make_pair(nullptr, Direction::Left);
 
 	if (node->Data == value)
-		return node;
+		return std::make_pair(node, direction);
 	
 	if (node->Data < value && node->Right)
-		return this->SeekNode(value, node->Right);
+		return this->SeekNode(value, node->Right, Direction::Right);
 
-	if (node->Data > value && node->Left)
-		return this->SeekNode(value, node->Left);
+	else if (node->Data > value && node->Left)
+		return this->SeekNode(value, node->Left, Direction::Left);
 
-	return nullptr;
+	return std::make_pair(nullptr, Direction::Left);
 }
 
 template<typename T>
@@ -112,23 +110,21 @@ void BinarySearchTree<T>::Insert(T value, std::shared_ptr<Node<T>> node)
 
 	if (value > node->Data)
 		direction = Direction::Right;
+
 	else if (value < node->Data)
 		direction = Direction::Left;
 	
-	if (direction == Direction::Left)
-	{
-		if (!node->Left)
-			node->Left = std::make_shared<Node<T>>(value, nullptr, nullptr);
-		else
-			this->Insert(value, node->Left); 
-	}
-	else if (direction == Direction::Right)
-	{
-		if (!node->Right)
+	if (direction == Direction::Left && !node->Left)
+		node->Left = std::make_shared<Node<T>>(value, nullptr, nullptr);
+
+	else if (direction == Direction::Left && node->Left)
+		this->Insert(value, node->Left); 
+
+	else if (direction == Direction::Right && !node->Right)
 			node->Right = std::make_shared<Node<T>>(value, nullptr, nullptr);
-		else
-			this->Insert(value, node->Right); 
-	}
+
+	else if (direction == Direction::Right && node->Right)
+		this->Insert(value, node->Right); 
 }
 
 template<typename T>
@@ -138,6 +134,16 @@ void BinarySearchTree<T>::Insert(T value)
 		this->Root = std::make_shared<Node<T>>(value, nullptr, nullptr);
 	
 	this->Insert(value, this->Root);
+}
+
+template<typename T>
+T BinarySearchTree<T>::Delete(T value)
+{
+	auto node = this->Get(value);
+
+	if (!node)
+		throw std::runtime_error("Value to be deleted doesn't exist");
+	
 }
 
 
