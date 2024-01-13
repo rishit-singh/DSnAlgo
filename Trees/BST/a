@@ -14,7 +14,7 @@ class BinarySearchTree : public Tree<T>
 protected:
 	NodeTuple<T> SeekNode(T, std::shared_ptr<Node<T>>, std::shared_ptr<Node<T>>, Direction = Direction::Left);
 	
-	NodeTuple<T> SeekEnd(std::shared_ptr<Node<T>>, std::shared_ptr<Node<T>>, Direction = Direction::Left);
+	NodeTuple<T> SeekEnd(T, std::shared_ptr<Node<T>>, std::shared_ptr<Node<T>>);
   
 	void Insert(T, std::shared_ptr<Node<T>>);
 
@@ -83,7 +83,7 @@ void BinarySearchTree<T>::Traverse(std::shared_ptr<Node<T>> node, BSTTraverseCal
 template<typename T>
 std::tuple<std::shared_ptr<Node<T>>, std::shared_ptr<Node<T>>, Direction> BinarySearchTree<T>::Get(T value)
 {
-	return this->SeekNode(value, nullptr, this->Root);
+	return this->SeekNode(value, this->Root);
 } 
 
 template<typename T>
@@ -101,7 +101,7 @@ NodeTuple<T> BinarySearchTree<T>::SeekNode(T value, std::shared_ptr<Node<T>> par
 	else if (node->Data > value && node->Left)
 		return this->SeekNode(value, node, node->Left, Direction::Left);
 
-	return std::make_tuple(nullptr, nullptr, Direction::Left);
+	return std::make_pair(nullptr, Direction::Left);
 }
 
 template<typename T>
@@ -138,18 +138,6 @@ void BinarySearchTree<T>::Insert(T value)
 }
 
 template<typename T>
-NodeTuple<T> BinarySearchTree<T>::SeekEnd(std::shared_ptr<Node<T>> parent, std::shared_ptr<Node<T>> node, Direction direction)
-{
-	if ((direction == Direction::Left && !node->Left) || (direction == Direction::Right && !node->Right))
-		std::make_tuple(parent, node, direction);
-
-	else if (direction == Direction::Left)
-		return SeekEnd(node, node->Left, direction);
-
-	return SeekEnd(node, node->Right, direction); // the only remaining condition is right
-}
-
-template<typename T>
 T BinarySearchTree<T>::Delete(T value)
 {
    	NodeTuple<T> nodeTuple = this->Get(value);
@@ -164,7 +152,7 @@ T BinarySearchTree<T>::Delete(T value)
 	Direction direction = std::get<2>(nodeTuple); 
 
 	if (node == this->Root)
-		this->Root = nullptr; 
+		this->Root = nullptr;
 
 	else if (!node->Left && !node->Right && direction == Direction::Left)
 		parent->Left = nullptr;
@@ -172,62 +160,23 @@ T BinarySearchTree<T>::Delete(T value)
 	else if (!node->Left && !node->Right && direction == Direction::Right)
 		parent->Right = nullptr;
 
-	else if (node->Left && !node->Right && direction == Direction::Left)
+	else if (node->Left && !node->right && direction == Direction::Left)
 		parent->Left = node->Left;
 	
-	else if (node->Left && !node->Right && direction == Direction::Right)
+	else if (node->Left && !node->right && direction == Direction::Right)
 		parent->Right = node->Left;
 
-	else if (!node->Left && node->Right && direction == Direction::Left)
+	else if (!node->Left && node->right && direction == Direction::Left)
 		parent->Left = node->Right;
 	
-	else if (!node->Left && node->Right && direction == Direction::Right)
+	else if (!node->Left && node->right && direction == Direction::Right)
 		parent->Right = node->Left;
-
-	else if (direction == Direction::Left)
-	{
-		NodeTuple<T> end = this->SeekEnd(node, node->Right, Direction::Right);
-		
-		auto endParent = std::get<0>(end);
-		auto endNode = std::get<1>(end);
-
-		Direction endDirection = std::get<2>(end);
-
-		if (endNode == node->Right)
-			node->Right = nullptr;
-
-		if (endDirection == Direction::Left)
-			endParent->Left = node->Right;
-		
-		else if (endDirection == Direction::Right)
-			endParent->Right = node->Right;
-		
-		parent->Left = endNode;
-	}
-
-	else if (direction == Direction::Right)
-	{
-		NodeTuple<T> end = this->SeekEnd(node, node->Right, Direction::Right);
-		
-		auto endParent = std::get<0>(end);
-		auto endNode = std::get<1>(end);
-
-		Direction endDirection = std::get<2>(end);
-
-		if (endNode == node->Right)
-			node->Right = nullptr;
-
-		if (endDirection == Direction::Left)
-			endParent->Left = node->Right;
-		
-		else if (endDirection == Direction::Right)
-			endParent->Right = node->Right;
-		
-		parent->Right = endNode;
-	}
-
-	return value;
+	
 }
 
 #endif
+   
+
+
+
 
