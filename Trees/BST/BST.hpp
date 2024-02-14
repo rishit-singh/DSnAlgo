@@ -19,6 +19,18 @@ protected:
 	void Insert(T, std::shared_ptr<Node<T>>);
 
 public:
+	class iterator 
+	{
+	public:
+		std::shared_ptr<Node<T>> Value;
+
+		bool operator ==(const iterator&) const noexcept;
+		
+		iterator& operator ++() const noexcept;
+		
+		[[nodiscard]] T operator *() const noexcept;
+	};
+
 	std::shared_ptr<Node<T>> Root;	
  
 	void Insert(T) override;
